@@ -1,11 +1,11 @@
 <div align="center">
 <h1>
-  TeleCoder3
+  TeleChat3-Coder
 </h1>
 </div>
 
 <p align="center">
-   🦉 <a href="https://github.com/Tele-AI/TeleCoder3" target="_blank">github</a> • 🤗 <a href="https://huggingface.co/Tele-AI" target="_blank">Hugging Face</a> • 🤖 <a href="https://modelscope.cn/organization/TeleAI" target="_blank">ModelScope</a> • 💬 <a href="https://github.com/Tele-AI/Telechat/blob/master/images/wechat.jpg" target="_blank">WeChat</a>
+   🦉 <a href="https://github.com/Tele-AI/TeleChat3-Coder" target="_blank">github</a> • 🤗 <a href="https://huggingface.co/Tele-AI" target="_blank">Hugging Face</a> • 🤖 <a href="https://modelscope.cn/organization/TeleAI" target="_blank">ModelScope</a> • 💬 <a href="https://github.com/Tele-AI/Telechat/blob/master/images/wechat.jpg" target="_blank">WeChat</a>
 </p>
 
 # 目录
@@ -17,18 +17,18 @@
 - [声明、协议、引用](#声明协议引用)
 
 # 最新动态
-- 2026.01.30 开源 **TeleCoder3-36B-Thinking**
+- 2026.01.30 开源 **TeleChat3-Coder-36B-Thinking**
 
 # 模型介绍
 
-### 星辰语义代码大模型-TeleCoder3
+### 星辰语义代码大模型-TeleChat3-Coder
 
-- 星辰语义代码大模型 **TeleCoder3** 是由中国电信人工智能研究院研发训练的大语言模型，该模型**完全基于国产算力**训练。
+- 星辰语义代码大模型 **TeleChat3-Coder** 是由中国电信人工智能研究院研发训练的大语言模型，该模型**完全基于国产算力**训练。
 
 ### 技术创新
 #### 预训练
 
-**TeleCoder3-36B-Thinking** 在 TeleBase3 基础上持续进行三阶段代码预训练：
+**TeleChat3-Coder-36B-Thinking** 在 TeleBase3 基础上持续进行三阶段代码预训练：
 - 第一阶段：在 TeleBase3 的基础上，将通用代码数据占比提升至 70%，并基于 8K 上下文长度进行持续训练，以增强模型的代码通识能力；
 - 第二阶段：优化代码数据组成，尤其增加了高质量仓库级别代码长文数据、SWE 级别长程代码任务数据等，以相同数据配比，基于 32K 上下文长度开展持续训练，增加模型长文任务能力；
 - 第三阶段：进一步提升长程代码任务与智能体任务数据占比，并基于 128K 上下文长度进行持续训练，持续增强模型在代码与智能体长程任务场景下的综合能力。
@@ -39,28 +39,28 @@
 - 为提升 Agentic Coding 能力，我们搭建了上万个执行环境，用于合成任务轨迹数据，并支撑 Agentic RL 训练；
 - 为提升 Web Vibe Coding 效果，我们基于 GUI-Agent 构建了一套可自动操作 Web 界面并进行生成结果评估的系统，大幅提升了数据质量。
 
-**TeleCoder3-36B-Thinking** 后训练采用迭代式提升方案：
+**TeleChat3-Coder-36B-Thinking** 后训练采用迭代式提升方案：
 - 第一阶段：模型冷启动微调，主要提升模型通用代码、Agent、推理、指令理解等能力，为了取得更好的冷启动效果，针对微调数据难度和多样性做了大量筛选工作；
 - 第二阶段：强化学习，采用了基于规则校验奖励和 RM 打分模型融合的方式，对模型综合能力进行进一步强化；
 - 第三阶段：在上一阶段模型基础上，开展长程 Agent 与 Coding 任务的专项微调优化；
 - 第四阶段：主要通过 Agentic RL 训练策略优化模型长程任务能力。
 
-![post-training](./images/TeleCoder3_post_training.png)
+![post-training](./images/TeleChat3-Coder_post_training.png)
 
 ### 模型结构
 
-**TeleCoder3-36B-Thinking** 的模型结构配置和 **TeleChat3-36B-Thinking** 一致：
+**TeleChat3-Coder-36B-Thinking** 的模型结构配置和 **TeleChat3-36B-Thinking** 一致：
 
 |      | Layers | Hidden Size | FFN Intermediate | Attention |
 |------|-----------|------|------|-----|
-| TeleCoder3-36B-Thinking  | 64        | 6144        | 24576   | GQA | 
+| TeleChat3-Coder-36B-Thinking  | 64        | 6144        | 24576   | GQA | 
 
 
 # 能力评估
-**TeleCoder3-36B-Thinking** 在代码综合能力上，不论是 Agentic Coding 还是通用代码类任务均有很好表现，同尺寸模型效果达到最优水平；
-**TeleCoder3-36B-Thinking** 在 Agent 能力上同样表现很好，在 BFCL 和 Tau2-Bench 榜单上达到同级别参数较好水平。
+**TeleChat3-Coder-36B-Thinking** 在代码综合能力上，不论是 Agentic Coding 还是通用代码类任务均有很好表现，同尺寸模型效果达到最优水平；
+**TeleChat3-Coder-36B-Thinking** 在 Agent 能力上同样表现很好，在 BFCL 和 Tau2-Bench 榜单上达到同级别参数较好水平。
 
-| 评测集                        | 任务类型  | Kimi-Dev-72B | Qwen3-32B-Thinking | Qwen3-30B-A3B-2507 | Qwen3-Coder-480B-A35B-Instruct | TeleCoder3-36B-Thinking | 
+| 评测集                        | 任务类型  | Kimi-Dev-72B | Qwen3-32B-Thinking | Qwen3-30B-A3B-2507 | Qwen3-Coder-480B-A35B-Instruct | TeleChat3-Coder-36B-Thinking | 
 |----------------------------|-------|---------------|--------------------|-----------|--------------|----------------------|
 | IFEval                   | 指令    | -          | **85**               | 81.2     | 82.4        | **84.6**                 |
 | SWE-bench Verified                   | 代码    | 60.4          | 28               | 51.6     | **69.6**        | **65**                 |
@@ -147,14 +147,14 @@
 
 ### Tranformers 推理
 
-TeleCoder3 模型支持使用 `transformers` 库进行推理，示例如下：
+TeleChat3-Coder 模型支持使用 `transformers` 库进行推理，示例如下：
 
 ```python
 import os
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, GenerationConfig
-tokenizer = AutoTokenizer.from_pretrained('./TeleCoder3-36B-Thinking', trust_remote_code=True)
-model = AutoModelForCausalLM.from_pretrained('./TeleCoder3-36B-Thinking', trust_remote_code=True, device_map="auto",torch_dtype=torch.bfloat16)
+tokenizer = AutoTokenizer.from_pretrained('./TeleChat3-Coder-36B-Thinking', trust_remote_code=True)
+model = AutoModelForCausalLM.from_pretrained('./TeleChat3-Coder-36B-Thinking', trust_remote_code=True, device_map="auto",torch_dtype=torch.bfloat16)
 prompt = "生抽与老抽的区别？"
 messages = [{"role": "user", "content": prompt}]
 text = tokenizer.apply_chat_template(messages,
@@ -176,14 +176,14 @@ answer = response.split("</think>")[-1].strip()
 
 ### VLLM 推理
 
-为适配 Interleaved Thinking 推理范式，我们基于 TeleChat3 系列模型重新设计了 Chat Template 及 Tool Call 的拼接方式。因此，在对 TeleCoder3 模型进行推理部署时，请首先参考 [TeleCoder3 vllm 补丁](TeleCoder3_vllm_tool_parser/README.md) 进行 vllm 配置，vllm 版本推荐使用0.9.2。
+为适配 Interleaved Thinking 推理范式，我们基于 TeleChat3 系列模型重新设计了 Chat Template 及 Tool Call 的拼接方式。因此，在对 TeleChat3-Coder 模型进行推理部署时，请首先参考 [TeleChat3-Coder vllm 补丁](TeleChat3-Coder_vllm_tool_parser/README.md) 进行 vllm 配置，vllm 版本推荐使用0.9.2。
 
 然后，执行以下命令进行模型部署：
 
 ```shell
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 python3 -m vllm.entrypoints.openai.api_server \
-        --model TeleCoder3-36B-Thinking  \
+        --model TeleChat3-Coder-36B-Thinking  \
         --trust-remote-code \
         --tensor-parallel-size 8 \
         --dtype bfloat16 \
@@ -199,7 +199,7 @@ python3 -m vllm.entrypoints.openai.api_server \
         --chat-template-content-format string
 ```
 
-然后，您可以与 TeleCoder3 进行对话：
+然后，您可以与 TeleChat3-Coder 进行对话：
 ```python
 from openai import OpenAI
 openai_api_key = "EMPTY"
@@ -207,7 +207,7 @@ openai_api_base = "http://localhost:8000/v1"
 
 client = OpenAI(api_key=openai_api_key, base_url=openai_api_base)
 chat_response = client.chat.completions.create(
-    model="TeleCoder3-36B-Thinking",
+    model="TeleChat3-Coder-36B-Thinking",
     messages=[
         {"role": "user", "content": "生抽和酱油的区别是什么？"},
     ],
@@ -238,7 +238,7 @@ print("Chat response:", chat_response)
 
 - MindSpore Transformers：该框架的目标是构建一个大模型训练、微调、评估、推理、部署的全流程开发套件，提供业内主流的 Transformer 类预训练模型和 SOTA 下游任务应用，涵盖丰富的并行特性。期望帮助用户轻松的实现大模型训练和创新研发。
 
-**当前星辰语义代码大模型 TeleCoder3 支持昇腾 Atlas 800T A2 训练服务器，可基于昇思 MindSpore 框架以及 MindSpore Transformers 框架进行模型训练和评测。如果您对 MindFormers 相关特性有疑问，也可以查看 [MindFormers官方代码和文档](https://gitee.com/mindspore/mindformers/tree/dev/)。**
+**当前星辰语义代码大模型 TeleChat3-Coder 支持昇腾 Atlas 800T A2 训练服务器，可基于昇思 MindSpore 框架以及 MindSpore Transformers 框架进行模型训练和评测。如果您对 MindFormers 相关特性有疑问，也可以查看 [MindFormers官方代码和文档](https://gitee.com/mindspore/mindformers/tree/dev/)。**
 
 
 
@@ -281,4 +281,5 @@ print("Chat response:", chat_response)
       primaryClass={cs.CL},
       url={https://arxiv.org/abs/2507.18013}, 
 }
+
 ```
