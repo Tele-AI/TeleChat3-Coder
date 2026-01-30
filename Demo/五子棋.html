@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>五子棋 - 网页版</title>
+    <style>
+        :root {
+            --board-bg: #e3c086;
+            --board-line: #5d4037;
+            --p1-color: #111; /* 黑棋 */
+            --p2-color: #f0f0f0; /* 白棋 */
+            --highlight: #ff4757; /* 最后一手的标记颜色 */
+            --primary-btn: #2ed573;
+            --primary-btn-hover: #26af61;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background-color: #f7f1e3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            user-select: none;
+        }
+
+        header {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2f3542;
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .game-wrapper {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        /* 棋盘区域 */
+        .board-container {
+            position: relative;
+            padding: 15px;
+            background-color: var(--board-bg);
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.3), 5px 5px 15px rgba(0,0,0,0.2);
+            /* 棋盘纹理效果 */
+            background-image: linear-gradient(45deg, rgba(0,0,0,0.03) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.03) 75%, rgba(0,0,0,0.03)), 
+                              linear-gradient(45deg, rgba(0,0,0,0.03) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.03) 75%, rgba(0,0,0,0.03));
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 30px);
+            grid-template-rows: repeat(15, 30px);
+            gap: 0;
+            position: relative;
+            cursor: pointer;
+        }
+
+        /* 棋盘格子与线条 */
+        .cell {
+            width: 30px;
+            height: 30px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 绘制棋盘线：利用伪元素模拟交叉点 */
+        .cell::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: var(--board-line);
+            z-index: 0;
+        }
+
+        .cell::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            height: 100%;
+            width: 1px;
+            background-color: var(--board-line);
+            z-index: 0;
+        }
+
+        /* 天元和星位小黑点 (可选，仅作装饰) */
+        .cell.star-point::before {
+            width: 100%; /* 保持线条贯穿 */
+        }
+        .cell.star-point .dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: var(--board-line);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        /* 棋子通用样式 */
+        .piece {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            z-index: 2;
+            transform: scale(0);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+        }
+
+        .piece.show {
+            transform: scale(1);
+        }
+
+        /* 玩家1 - 黑棋 */
+        .piece.p1 {
+            background: radial-gradient(circle at 30% 30%, #555, #000);
+        }
+
+        /* 玩家2 - 白棋 */
+        .piece.p2 {
+            background: radial-gradient(circle at 30% 30%, #fff, #ddd);
+            border: 1px solid #ccc;
+        }
+
+        /* 最新落子标记 */
+        .piece.last-move::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background-color: var(--highlight);
+            border-radius: 50%;
+            box-shadow: 0 0 4px rgba(255, 71, 87, 0.8);
+        }
+
+        /* 鼠标悬停预览 */
+        .cell:hover:not(.occupied) .preview {
+            display: block;
+        }
+        .preview {
+            display: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            opacity: 0.4;
+            z-index: 1;
+        }
+        .preview.p1 { background-color: #000; }
+        .preview.p2 { background-color: #fff; }
+
+        /* 侧边栏控制区 */
+        .sidebar {
+            width: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .status-card {
+            background: #f1f2f6;
+            padding: 20px;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .status-title {
+            font-size: 0.9rem;
+            color: #747d8c;
+            margin-bottom: 10px;
+        }
+
+        .current-player-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .indicator-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .message-area {
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #2f3542;
+        }
+
+        .message-area.win { color: var(--primary-btn); }
+        .message-area.draw { color: #ffa502; }
+
+        button {
+            background-color: var(--primary-btn);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: var(--primary-btn-hover);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 600px) {
+            .game-wrapper {
+                flex-direction: column;
+                align-items: center;
+            }
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                box-sizing: border-box;
+                padding: 10px;
+            }
+            .status-card {
+                flex: 1;
+                margin-right: 10px;
+            }
+            button {
+                width: auto;
+                padding: 10px 20px;
+            }
+            .board {
+                /* 移动端稍微缩小棋盘 */
+                grid-template-columns: repeat(15, 22px);
+                grid-template-rows: repeat(15, 22px);
+            }
+            .cell {
+                width: 22px;
+                height: 22px;
+            }
+            .piece {
+                width: 18px;
+                height: 18px;
+            }
+            .preview {
+                width: 18px;
+                height: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>五子棋</h1>
+    </header>
+
+    <main class="game-wrapper">
+        <!-- 棋盘区域 -->
+        <div class="board-container">
+            <div class="board" id="board"></div>
+        </div>
+
+        <!-- 控制与状态区域 -->
+        <aside class="sidebar">
+            <div class="status-card">
+                <div class="status-title">游戏状态</div>
+                <div class="current-player-indicator">
+                    <span id="playerDot" class="indicator-dot" style="background: #000;"></span>
+                    <span id="statusText">游戏开始！玩家1先落子</span>
+                </div>
+                <div class="message-area" id="messageArea">
+                    等待落子...
+                </div>
+            </div>
+            <button id="restartBtn" onclick="game.restart()">重新开始</button>
+        </aside>
+    </main>
+
+    <script>
+        /**
+         * 游戏逻辑控制器
+         */
+        const game = {
+            size: 15, // 15x15 棋盘
+            boardData: [], // 存储棋盘状态: 0=空, 1=玩家1(黑), 2=玩家2(白)
+            currentPlayer: 1, // 1 或 2
+            isGameOver: false,
+            moveCount: 0,
+            maxMoves: 15 * 15,
+            lastMove: null, // {r, c} 记录最后一步，用于高亮
+
+            // DOM 元素引用
+            boardEl: document.getElementById('board'),
+            statusTextEl: document.getElementById('statusText'),
+            messageAreaEl: document.getElementById('messageArea'),
+            playerDotEl: document.getElementById('playerDot'),
+            restartBtn: document.getElementById('restartBtn'),
+
+            // 初始化游戏
+            init() {
+                this.createBoard();
+                this.restart();
+            },
+
+            // 创建棋盘网格 HTML
+            createBoard() {
+                this.boardEl.innerHTML = '';
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        
+                        // 添加星位 (标准五子棋星位位置: 3,3; 11,3; 7,7; 3,11; 11,11)
+                        if ((r === 3 || r === 11 || r === 7) && (c === 3 || c === 11 || c === 7)) {
+                            const dot = document.createElement('div');
+                            dot.classList.add('dot');
+                            cell.classList.add('star-point');
+                            cell.appendChild(dot);
+                        }
+
+                        // 添加预览棋子 (根据当前回合)
+                        const preview = document.createElement('div');
+                        preview.classList.add('preview', `p${this.currentPlayer}`);
+                        cell.appendChild(preview);
+
+                        // 绑定点击事件
+                        cell.addEventListener('click', () => this.handleMove(r, c));
+                        this.boardEl.appendChild(cell);
+                    }
+                }
+            },
+
+            // 重新开始
+            restart() {
+                this.boardData = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
+                this.currentPlayer = 1;
+                this.isGameOver = false;
+                this.moveCount = 0;
+                this.lastMove = null;
+
+                // 清除所有棋子和状态
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    // 移除 .occupied 类（虽然这里没用这个类做太多，但逻辑上表示被占用了）
+                    cell.classList.remove('occupied');
+                    const piece = cell.querySelector('.piece');
+                    if (piece) piece.remove();
+                    
+                    // 重置预览
+                    const preview = cell.querySelector('.preview');
+                    if(preview) {
+                        preview.className = `preview p${this.currentPlayer}`;
+                    }
+                });
+
+                this.updateUI();
+                this.messageAreaEl.textContent = "游戏开始！玩家1先落子";
+                this.messageAreaEl.className = "message-area";
+                this.statusTextEl.textContent = "轮到玩家1";
+            },
+
+            // 处理落子
+            handleMove(r, c) {
+                // 如果游戏结束或该位置已有棋子，则忽略
+                if (this.isGameOver || this.boardData[r][c] !== 0) return;
+
+                // 1. 更新数据
+                this.boardData[r][c] = this.currentPlayer;
+                this.moveCount++;
+                this.lastMove = { r, c };
+
+                // 2. 更新 UI：移除预览，添加正式棋子
+                const cell = this.getCell(r, c);
+                const preview = cell.querySelector('.preview');
+                if (preview) preview.style.display = 'none';
+
+                const piece = document.createElement('div');
+                piece.classList.add('piece', `p${this.currentPlayer}`, 'show');
+                
+                // 移除旧的高亮，添加新的高亮
+                const prevLast = document.querySelector('.piece.last-move');
+                if (prevLast) prevLast.classList.remove('last-move');
+                piece.classList.add('last-move');
+
+                cell.appendChild(piece);
+
+                // 3. 检查胜负
+                if (this.checkWin(r, c, this.currentPlayer)) {
+                    this.endGame(true);
+                    return;
+                }
+
+                // 4. 检查平局
+                if (this.moveCount === this.maxMoves) {
+                    this.endGame(false);
+                    return;
+                }
+
+                // 5. 切换玩家
+                this.currentPlayer = this.currentPlayer === 1 ? 2 : 1;
+                
+                // 更新所有格子的悬停预览颜色（因为换了玩家）
+                this.updatePreviews();
+                this.updateUI();
+            },
+
+            // 更新界面文字和指示器
+            updateUI() {
+                this.statusTextEl.textContent = `轮到玩家${this.currentPlayer}`;
+                this.playerDotEl.style.background = this.currentPlayer === 1 ? '#000' : '#fff';
+                this.playerDotEl.style.border = this.currentPlayer === 1 ? 'none' : '1px solid #ccc';
+            },
+
+            // 更新棋盘上的悬停预览颜色
+            updatePreviews() {
+                const previews = document.querySelectorAll('.preview');
+                previews.forEach(p => {
+                    p.className = `preview p${this.currentPlayer}`;
+                });
+            },
+
+            // 获取 DOM 单元格
+            getCell(r, c) {
+                // 由于 grid 是平铺的，索引 = r * size + c
+                return this.boardEl.children[r * this.size + c];
+            },
+
+            // 核心算法：检查胜利
+            checkWin(r, c, player) {
+                const directions = [
+                    [[0, 1], [0, -1]], // 水平
+                    [[1, 0], [-1, 0]], // 垂直
+                    [[1, 1], [-1, -1]], // 右下斜
+                    [[1, -1], [-1, 1]]  // 左下斜
+                ];
+
+                for (let axis of directions) {
+                    let count = 1; // 包含当前落子
+                    
+                    for (let dir of axis) {
+                        let nr = r + dir[0];
+                        let nc = c + dir[1];
+                        
+                        while (
+                            nr >= 0 && nr < this.size &&
+                            nc >= 0 && nc < this.size &&
+                            this.boardData[nr][nc] === player
+                        ) {
+                            count++;
+                            nr += dir[0];
+                            nc += dir[1];
+                        }
+                    }
+
+                    if (count >= 5) return true;
+                }
+                return false;
+            },
+
+            // 游戏结束处理
+            endGame(hasWinner) {
+                this.isGameOver = true;
+                if (hasWinner) {
+                    const winnerName = this.currentPlayer === 1 ? "玩家1 (黑)" : "玩家2 (白)";
+                    this.messageAreaEl.textContent = `${winnerName} 获胜！`;
+                    this.messageAreaEl.className = "message-area win";
+                    this.statusTextEl.textContent = "游戏结束";
+                } else {
+                    this.messageAreaEl.textContent = "平局！";
+                    this.messageAreaEl.className = "message-area draw";
+                    this.statusTextEl.textContent = "游戏结束";
+                }
+            }
+        };
+
+        // 启动游戏
+        game.init();
+
+    </script>
+</body>
+</html>
