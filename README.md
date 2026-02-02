@@ -45,7 +45,7 @@
 - 第三阶段：在上一阶段模型基础上，开展长程 Agent 与 Coding 任务的专项微调优化；
 - 第四阶段：主要通过 Agentic RL 训练策略优化模型长程任务能力。
 
-![post-training](./images/TeleCoder3_post_training.png)
+![post-training](./images/TeleChat3-Coder_post_training.png)
 
 ### 模型结构
 
